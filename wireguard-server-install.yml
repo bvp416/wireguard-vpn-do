@@ -1,0 +1,8 @@
+---
+# add public ip to inventory files
+# ansible-playbook -i inventory wireguard-server-install.yml
+- hosts: wireguard
+  become: True
+  
+  roles:
+    - { role: wireguard/server  }

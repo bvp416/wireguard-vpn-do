@@ -1,0 +1,14 @@
+---
+
+- name: Users to be Added
+  debug: msg="{{ user_list | difference(config_list) }}"
+- name: Users to be Removed
+  debug: msg="{{ config_list | difference(user_list) }}"
+
+- import_tasks: user_add.yml
+  when: add_users
+
+- import_tasks: user_remove.yml
+  when: delete_users
+
+...

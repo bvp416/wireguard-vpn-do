@@ -1,0 +1,11 @@
+---
+# to use email, you must create an app password for a gmail account
+# add public ip to inventory files
+# ansible-playbook -i inventory wireguard-users.yml
+- hosts: wireguard
+  vars:
+    email:
+    # - foo@bar.com
+  
+  roles:
+    - { role: wireguard/client }

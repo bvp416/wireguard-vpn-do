@@ -1,0 +1,47 @@
+---
+- name: Fetch User Configs
+  fetch:
+    src: "{{ config_path }}/{{ item }}.conf"
+    dest: "files/"
+  with_list: "{{ add_users }}"
+
+- name: "Fetch QR Code Image"
+  fetch:
+    src: "{{ config_path }}/{{ item }}.png"
+    dest: "files/"
+  with_list: "{{ add_users_qr }}"  
+
+- name: "Send Email to User"
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: "{{ email_account }}"
+    password: "{{ email_pw }}"
+    to: <{{ item }}@gmail.com>
+    subject: Wireguard VPN Config
+    body: Hello, After installing the Wireguard client on your workstation, you can use your attched config to activate a VPN tunnel.
+    attach:
+    - "{{ playbook_dir }}/files/{{ inventory_hostname }}{{ config_path }}/{{ item }}.conf"
+    - "{{ playbook_dir }}/files/{{ inventory_hostname }}{{ config_path }}/{{ item }}-qr.png"
+  with_list: "{{ add_users }}"
+  delegate_to: '127.0.0.1'
+
+- name: "Remove Configs"
+  file:
+    path: "{{ playbook_dir }}/files/{{ inventory_hostname }}{{ config_path }}/{{ item }}.conf"
+    state: absent
+  with_list: "{{ add_users }}"
+  delegate_to: '127.0.0.1'
+- name: "Remove QR Code"
+  file:
+    path: "{{ playbook_dir }}/files/{{ inventory_hostname }}{{ config_path }}/{{ item }}.png"
+    state: absent
+  with_list: "{{ add_users_qr }}"
+  delegate_to: '127.0.0.1'
+- name: "Remove Dirs"
+  file:
+    path: "{{ playbook_dir }}/files/{{ inventory_hostname }}"
+    state: absent
+  with_list: "{{ add_users }}"
+  delegate_to: '127.0.0.1'
+...

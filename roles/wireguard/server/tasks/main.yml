@@ -1,0 +1,46 @@
+---
+
+- name: Enable ipv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: True
+    state: present
+    reload: True
+  tags: check
+
+# - name: "Get public IP"
+#   uri:
+#     url: "{{ metadata }}"
+#     return_content: True
+#   register: public_ip
+
+- name: Install Wireguard through PiVPN
+  block:
+    - name: get script
+      get_url:
+        url: "{{ pivpn.install_url }}"
+        dest: "{{ temp_dir }}/{{ pivpn.install_script }}"
+        mode: 0500
+        force: True
+    - name: copy config template
+      template:
+        src: "templates/{{ pivpn.configs }}.j2"
+        dest: "{{ temp_dir }}/{{ pivpn.configs }}"
+    - name: run script 
+      shell:
+        cmd: "./{{ pivpn.install_script }} --unattended {{ pivpn.configs }}"
+      args:
+        chdir: "{{ temp_dir }}"
+  tags: install
+
+- name: "cleanup {{ pivpn.install_script }}, {{ pivpn.configs }}"
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ temp_dir }}/{{ pivpn.install_script }}"
+    - "{{ temp_dir }}/{{ pivpn.configs }}"
+  tags: install
+
+...

@@ -1,0 +1,12 @@
+---
+- import_tasks: gather_vars.yml
+  become: True
+  tags: gather
+
+- import_tasks: users.yml
+  tags: users
+
+# ran only when a user is added
+- import_tasks: email.yml
+  when: add_users
+...

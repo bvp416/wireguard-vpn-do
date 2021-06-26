@@ -1,0 +1,38 @@
+---
+- name: "Adding User {{ item }}"
+  shell: 
+    cmd: yes 'y' | pivpn add -n {{ item }}
+  register: added
+  become: True
+  with_list: "{{ add_users }}"
+- debug: msg="{{ added.msg }}"
+  with_list: "{{ add_users }}"
+
+- name: "Add QR Code Config"
+  shell: 
+    cmd: yes 'y' | pivpn add -n {{ item }}
+  register: qr_add
+  become: True
+  with_list: "{{ add_users_qr }}"  
+- name: "Generate QR Code"
+  shell: 
+    cmd: qrencode -o {{ item }}.png < {{ item }}.conf
+  args:
+    chdir: "{{ config_path }}"
+  with_list: "{{ add_users_qr }}"  
+
+- name: Send Confirmation to Slack
+  slack:
+    token: "{{ slack_webhook_token }}"
+    msg: "Host: {{ inventory_hostname }}"
+    username: 'Ansible {{ ansible_version.full }}'
+    icon_url: "{{ ansible_logo }}"
+    link_names: 0
+    parse: 'none'
+    attachments:
+      - author_name: "Completed role(s): {{ ansible_play_role_names }}."
+        title: "Wireguard Config Created for:"
+        text: "{{ item }}"
+  with_list: "{{ add_users }}"
+  delegate_to: '127.0.0.1'
+...

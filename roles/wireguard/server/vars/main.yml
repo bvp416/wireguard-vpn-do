@@ -1,0 +1,12 @@
+---
+
+ipv4:
+    addr: "{{ ansible_default_ipv4.address }}"
+    gw: "{{ ansible_default_ipv4.gateway }}"
+    dev: "{{ ansible_default_ipv4.interface }}"
+
+dns:
+  one: 8.8.8.8
+  two: 8.8.4.4
+
+install_user: "{{ ansible_user_id }}"

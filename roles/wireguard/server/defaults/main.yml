@@ -1,0 +1,6 @@
+---
+temp_dir: "/root"
+pivpn:
+  install_url: "https://raw.githubusercontent.com/pivpn/pivpn/master/auto_install/install.sh"
+  install_script: "install.sh"
+  configs: pivpn_install.conf

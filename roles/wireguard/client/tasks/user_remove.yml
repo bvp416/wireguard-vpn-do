@@ -1,0 +1,31 @@
+---
+- name: "Deleting User {{ item }}"
+  shell: 
+    cmd: yes 'y' | pivpn remove {{ item }}
+  register: removed
+  become: True
+  with_list: "{{ delete_users }}"
+- debug: msg="{{ removed.msg }}"
+  with_list: "{{ delete_users }}"
+
+- name: "Delete QR Code Image"
+  file:
+    path: "{{ config_path }}/{{ item }}"
+    state: absent
+  with_list: "{{ delete_users_qr }}" 
+
+- name: Send Confirmation to Slack
+  slack:
+    token: "{{ slack_webhook_token }}"
+    msg: "Host: {{ inventory_hostname }}"
+    username: 'Ansible {{ ansible_version.full }}'
+    icon_url: "{{ ansible_logo }}"
+    link_names: 0
+    parse: 'none'
+    attachments:
+      - author_name: "Completed role(s): {{ ansible_play_role_names }}."
+        title: "Wireguard Config Deleted for:"
+        text: "{{ item }}"
+  with_list: "{{ delete_users }}"
+  delegate_to: '127.0.0.1'
+...

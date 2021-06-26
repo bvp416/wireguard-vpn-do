@@ -1,0 +1,26 @@
+---
+
+- name: "Gather current config names"
+  find:
+    paths: "{{ config_path }}"
+    file_type: file
+  register: config_results
+- set_fact:
+    config_list: "{{ config_results.files | map(attribute='path') | map('regex_replace','^.*/(.*).conf$','\\1') | list }}"
+- set_fact:
+    config_list_qr: "{{ config_results.files | map(attribute='path') | map('regex_replace','^.*/(.*)-qr$','\\1') | list }}"
+
+- set_fact:
+    user_list: "{{ email | map('regex_replace','^(.*)@.*$','\\1') | list }}"
+- set_fact:
+    add_users: "{{ user_list | difference(config_list) }}"
+- set_fact:
+    delete_users: "{{ config_list | difference(user_list) }}"
+
+- set_fact:
+    qr_list: "{{ email | map('regex_replace','^(.*)@.*$','\\1-qr') | list }}"
+- set_fact:
+    add_users_qr: "{{ qr_list | difference(config_list_qr) }}"
+- set_fact:
+    delete_users_qr: "{{ config_list_qr | difference(qr_list) }}"
+...

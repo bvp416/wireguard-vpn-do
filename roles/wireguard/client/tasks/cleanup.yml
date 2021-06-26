@@ -1,0 +1,14 @@
+---
+- name: "Remove Configs"
+  file:
+    path: "{{ playbook_dir }}/files/{{ inventory_hostname }}{{ config_path }}/{{ item }}.conf"
+    state: absent
+  with_list: "{{ add_users }}"
+  delegate_to: '127.0.0.1'
+- name: "Remove Dirs"
+  file:
+    path: "{{ playbook_dir }}/files/{{ inventory_hostname }}"
+    state: absent
+  with_list: "{{ add_users }}"
+  delegate_to: '127.0.0.1'
+...
